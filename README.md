@@ -7,7 +7,7 @@ combine this data, all the countries present in emission data have been manually
 are already present in gdp and population data, we can use them to merge all available informations. To assign codes, following rules have been
 used:
 
-- dependencies, unless appearing as a separate entity in the gpd/population data (e.g. Aruba) have been assigned alpha-3 codes of their controlling 
+- dependencies, unless appearing as a separate entity in the gdp/population data (e.g. Aruba) have been assigned alpha-3 codes of their controlling 
   states (e.g. Martinique has been assigned alpha-3 code "FRA", which means that its CO2 emissions will be later on added to the CO2 emissions of
   France).
   
