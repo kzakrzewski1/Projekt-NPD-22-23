@@ -1,4 +1,4 @@
-This project aims to analyse data on CO2 emissions, gross domestic product and populations.
+This project aims to analyse data on CO2 emissions, gross domestic product and population.
 
 Data that has been used for this analysis can be downloaded from this repository in the form of csv files. It comes from two different sources,
 which sometimes use different names for the same countries or treat some territories in a different way (for example in the gdp and population 
