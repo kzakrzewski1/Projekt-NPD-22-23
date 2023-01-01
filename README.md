@@ -2,7 +2,7 @@ This project aims to analyse data on CO2 emissions, gross domestic product and p
 
 Data that has been used for this analysis can be downloaded from this repository in the form of csv files. It comes from two different sources,
 which sometimes use different names for the same countries or treat some territories in a different way (for example in the gdp and population 
-data monaco is treated as a separate entity, whereas in the emission data it is counted together with france). In order to make it possible to
+data Monaco is treated as a separate entity, whereas in the emission data it is counted together with France). In order to make it possible to
 combine this data, all the countries present in emission data have been manually assigned alpha-3 code (see country_codes.csv). As these codes
 are already present in gdp and population data, we can use them to merge all available informations. To assign codes, following rules have been
 used:
