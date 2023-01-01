@@ -10,7 +10,7 @@ def get_countries(co2, gdp):
     countries.columns = ['Country Name']
 
     countries = pd.merge(countries, gdp[['Country Name', 'Country Code']], 
-                         on='Country Name', how='left').sort_values(by = 'Country Name')
+                         on = 'Country Name', how = 'left').sort_values(by = 'Country Name')
 
     countries.to_csv('countries.csv')
 
@@ -79,9 +79,9 @@ def GDP_per_capita(gdp, population):
 def n_highest_emissions_pc(data, n = 5):
     return data.sort_values(by = ['Year', 'Per Capita'],
                             ascending = [True, False]).groupby(['Year']).head(n)[['Year',
-                                                                                 'Country Name', 
-                                                                                 'Per Capita', 
-                                                                                 'Total']]
+                                                                                  'Country Name', 
+                                                                                  'Per Capita', 
+                                                                                  'Total']]
 
 
 # create table containing n countries with highest co2 emission per capita in a given year
@@ -90,9 +90,9 @@ def n_highest_emissions_pc_year(data, start, end, year, n = 5):
         assert (data >= start and year <= end)
         return data[data['Year'] == year].sort_values(by = 'Per Capita',
                                                       ascending = False).head(n)[['Year', 
-                                                                                'Country Name', 
-                                                                                'Per Capita', 
-                                                                                'Total']]
+                                                                                 'Country Name', 
+                                                                                 'Per Capita', 
+                                                                                 'Total']]
     except AssertionError:
         print('No data available for this year')
 
@@ -101,9 +101,9 @@ def n_highest_emissions_pc_year(data, start, end, year, n = 5):
 def n_highest_gdps_pc(data, n = 5):
     return data.sort_values(by = ['Year', 'GDP Per Capita'],
                                   ascending = [True, False]).groupby(['Year']).head(n)[['Year',
-                                                                                       'Country Name', 
-                                                                                       'GDP Per Capita', 
-                                                                                       'GDP']]
+                                                                                        'Country Name', 
+                                                                                        'GDP Per Capita', 
+                                                                                        'GDP']]
 
 
 # create table containing n countries with highest GDP per capita in a given year
@@ -112,9 +112,9 @@ def n_highest_gdps_pc_year(data, start, end, year, n = 5):
         assert (year >= start and year <= end)
         return data[data['Year'] == year].sort_values(by = 'GDP Per Capita',
                                                       ascending = False).head(n)[['Year', 
-                                                                                'Country Name', 
-                                                                                'GDP Per Capita', 
-                                                                                'GDP']]
+                                                                                 'Country Name', 
+                                                                                 'GDP Per Capita', 
+                                                                                 'GDP']]
     except AssertionError:
         print('No data available for this year')
 
