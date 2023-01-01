@@ -14,7 +14,7 @@ def get_countries(co2, gdp):
 
     countries.to_csv('countries.csv')
 
-    countries = pd.read_csv('countries2.csv')       # missing alpha-3 codes have been added manually
+    countries = pd.read_csv('country_codes.csv')       # missing alpha-3 codes have been added manually
 
     return countries
 
