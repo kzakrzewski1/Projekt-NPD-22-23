@@ -66,12 +66,18 @@ def get_gdp(gdp, year, country_code):
 
 # calculate co2 emission per capita 
 def CO2_per_capita(total, population):       
-    return 1000 * total/population
+    if population == 0:
+        return np.nan
+    else:
+        return 1000 * total/population
 
 
 # calculate GDP per capita
 def GDP_per_capita(gdp, population):
-    return gdp/population
+    if population == 0:
+        return np.nan
+    else:
+        return gdp/population
 
 
 
