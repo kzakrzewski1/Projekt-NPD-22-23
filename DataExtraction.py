@@ -10,7 +10,7 @@ def get_countries(co2, gdp):
     countries.columns = ['Country Name']
 
     countries = pd.merge(countries, gdp[['Country Name', 'Country Code']], 
-                     on='Country Name', how='left').sort_values(by = 'Country Name')
+                         on='Country Name', how='left').sort_values(by = 'Country Name')
 
     countries.to_csv('countries.csv')
 
@@ -22,30 +22,50 @@ def get_countries(co2, gdp):
 
 # find years for which all of the required data is available
 def get_interval(start, end, co2, gdp, pop):        
-    return [1960, 2014]
+    first = max(int(gdp.select_dtypes('number').columns.min()),
+                int(pop.select_dtypes('number').columns.min()),
+                co2['Year'].values.min(),
+                start)
+    
+    last = min(int(gdp.select_dtypes('number').columns.max()),
+               int(pop.select_dtypes('number').columns.max()),
+               co2['Year'].values.max(),
+               end)
+
+
+    first_in = max(int(gdp.select_dtypes('number').columns.min()),
+                   int(pop.select_dtypes('number').columns.min()),
+                   co2['Year'].values.min())
+
+    last_in = min(int(gdp.select_dtypes('number').columns.max()),
+                  int(pop.select_dtypes('number').columns.max()),
+                  co2['Year'].values.max())
+
+    if(last_in >= first_in):
+        msg = f"supplied files provide overlapping data only between years {first_in} and {last_in}"
+    else:
+        msg = f"supplied files don't provide overlapping data in any year."
+               
+
+    assert first <= last, f"no data available for chosen time interval. {msg}"
+
+    return [first, last]
 
 
 
 # return population of a given country in a given year
-def get_population(pop, year, country_code):      
-    if  pop[pop['Country Code'] == country_code].loc[:, str(year)].values:
-        return pop[pop['Country Code'] == country_code].loc[:, str(year)].values[0]
-    else:
-        return np.nan
-
+def get_population(pop, year, country_code):
+    return pop.at[pop[pop['Country Code'] == country_code].index.item(), str(year)]
+        
 
 #  return gdp of a given country in a given year
 def get_gdp(gdp, year, country_code):        
-    if  gdp[gdp['Country Code'] == country_code].loc[:, str(year)].values:
-        return gdp[gdp['Country Code'] == country_code].loc[:, str(year)].values[0]
-    else:
-        print(country_code)
-        return np.nan
+    return gdp.at[gdp[gdp['Country Code'] == country_code].index.item(), str(year)]
 
 
 
 # calculate co2 emission per capita 
-def per_capita(total, population):       
+def CO2_per_capita(total, population):       
     return 1000 * total/population
 
 
@@ -56,20 +76,20 @@ def GDP_per_capita(gdp, population):
 
 
 # create table containing n countries with highest co2 emission per capita in each year
-def n_highest_emissions_pc(co2, n = 5):
-    return co2.sort_values(by = ['Year', 'Per Capita'],
-                           ascending = [True, False]).groupby(['Year']).head(n)[['Year',
+def n_highest_emissions_pc(data, n = 5):
+    return data.sort_values(by = ['Year', 'Per Capita'],
+                            ascending = [True, False]).groupby(['Year']).head(n)[['Year',
                                                                                  'Country Name', 
                                                                                  'Per Capita', 
                                                                                  'Total']]
 
 
 # create table containing n countries with highest co2 emission per capita in a given year
-def n_highest_emissions_pc_year(co2, start, end, year, n = 5):
+def n_highest_emissions_pc_year(data, start, end, year, n = 5):
     try:
-        assert (co2 >= start and year <= end)
-        return co2[co2['Year'] == year].sort_values(by = 'Per Capita',
-                                                    ascending = False).head(n)[['Year', 
+        assert (data >= start and year <= end)
+        return data[data['Year'] == year].sort_values(by = 'Per Capita',
+                                                      ascending = False).head(n)[['Year', 
                                                                                 'Country Name', 
                                                                                 'Per Capita', 
                                                                                 'Total']]
@@ -78,20 +98,20 @@ def n_highest_emissions_pc_year(co2, start, end, year, n = 5):
 
 
 # create table containing n countries with highest GDP per capita in each year
-def n_highest_gdps_pc(co2, n = 5):
-    return co2.sort_values(by = ['Year', 'GDP Per Capita'],
-                                 ascending = [True, False]).groupby(['Year']).head(n)[['Year',
+def n_highest_gdps_pc(data, n = 5):
+    return data.sort_values(by = ['Year', 'GDP Per Capita'],
+                                  ascending = [True, False]).groupby(['Year']).head(n)[['Year',
                                                                                        'Country Name', 
                                                                                        'GDP Per Capita', 
                                                                                        'GDP']]
 
 
 # create table containing n countries with highest GDP per capita in a given year
-def n_highest_gdps_pc_year(co2, start, end, year, n = 5):
+def n_highest_gdps_pc_year(data, start, end, year, n = 5):
     try:
         assert (year >= start and year <= end)
-        return co2[co2['Year'] == year].sort_values(by = 'GDP Per Capita',
-                                                    ascending = False).head(n)[['Year', 
+        return data[data['Year'] == year].sort_values(by = 'GDP Per Capita',
+                                                      ascending = False).head(n)[['Year', 
                                                                                 'Country Name', 
                                                                                 'GDP Per Capita', 
                                                                                 'GDP']]
@@ -101,27 +121,26 @@ def n_highest_gdps_pc_year(co2, start, end, year, n = 5):
 
 
 # calculate reduction of co2 per capita reduction between given years
-def get_reduction(co2, country_name, start, end):
-    if  (co2[(co2['Country Name'] == country_name) & (co2['Year'] == start)]['Per Capita'].values and
-         co2[(co2['Country Name'] == country_name) & (co2['Year'] == end)]['Per Capita'].values): 
-        return (co2[(co2['Country Name'] == country_name) & (co2['Year'] == start)]['Per Capita'].values[0] 
-              - co2[(co2['Country Name'] == country_name) & (co2['Year'] == end)]['Per Capita'].values[0])
+def get_reduction(data, country_name, first, last):
+    if  (data[(data['Country Name'] == country_name) & (data['Year'] == first)]['Per Capita'].values and
+         data[(data['Country Name'] == country_name) & (data['Year'] == last)]['Per Capita'].values): 
+        return (data[(data['Country Name'] == country_name) & (data['Year'] == first)]['Per Capita'].values[0] 
+              - data[(data['Country Name'] == country_name) & (data['Year'] == last)]['Per Capita'].values[0])
     else:
         return np.nan
     
 
-# create table containing n countries with higest reduction of co2 per capita emission between given years
-def n_highest_reductions(co2, start, end, year, n):
+# create table containing n countries with higest reduction of co2 per capita emission in the last 10 years
+def n_highest_reductions(data, start, end, n):
     try:
-        assert (year > start and year <= end)
-        if (year - 10 < start):
-                print(f"Available data goes back only for {year - start} years. Following table shows countries with highest reduction in the last {year - start} years. \n")
+        assert (end > start)
 
-        begin = max(year - 10, start)
+        begin = max(end - 10, start)
 
-        country_list =  pd.DataFrame(co2["Country Name"].unique())
+        country_list =  pd.DataFrame(data["Country Name"].unique())
         country_list.columns = ['Country Name']
-        country_list['Reduction'] = country_list[['Country Name']].apply(lambda x: get_reduction(co2, x['Country Name'], begin, year), axis = 1)
+        country_list['Reduction'] = country_list[['Country Name']].apply(lambda x: 
+                                                                         get_reduction(data, x['Country Name'], begin, end), axis = 1)
 
         return country_list.sort_values(by = 'Reduction', ascending = False).dropna().head(n)
         
