@@ -4,52 +4,36 @@ import os
 
 
 
-# create file containing countries present in emission data and some of their alpha-3 codes
-def get_countries(co2, gdp):
-    countries = pd.DataFrame(co2['Country'].drop_duplicates())        
-    countries.columns = ['Country Name']
-
-    countries = pd.merge(countries, gdp[['Country Name', 'Country Code']], 
-                         on = 'Country Name', how = 'left').sort_values(by = 'Country Name')
-
-    countries.to_csv('countries.csv')
-
-    countries = pd.read_csv('country_codes.csv')       # missing alpha-3 codes have been added manually
-
-    return countries
-
-
-
 # find years for which all of the required data is available
-def get_interval(start, end, co2, gdp, pop):        
-    first = max(int(gdp.select_dtypes('number').columns.min()),
+def get_interval(first, last, co2, gdp, pop):        
+    start = max(int(gdp.select_dtypes('number').columns.min()),
                 int(pop.select_dtypes('number').columns.min()),
                 co2['Year'].values.min(),
-                start)
+                first)
     
-    last = min(int(gdp.select_dtypes('number').columns.max()),
+    end = min(int(gdp.select_dtypes('number').columns.max()),
                int(pop.select_dtypes('number').columns.max()),
                co2['Year'].values.max(),
-               end)
+               last)
 
 
-    first_in = max(int(gdp.select_dtypes('number').columns.min()),
+    start_in = max(int(gdp.select_dtypes('number').columns.min()),
                    int(pop.select_dtypes('number').columns.min()),
                    co2['Year'].values.min())
 
-    last_in = min(int(gdp.select_dtypes('number').columns.max()),
+    end_in = min(int(gdp.select_dtypes('number').columns.max()),
                   int(pop.select_dtypes('number').columns.max()),
                   co2['Year'].values.max())
 
-    if(last_in >= first_in):
-        msg = f"supplied files provide overlapping data only between years {first_in} and {last_in}"
+    if(start_in >= end_in):
+        msg = f"supplied files provide overlapping data only between years {start_in} and {end_in}"
     else:
         msg = f"supplied files don't provide overlapping data in any year."
                
 
-    assert first <= last, f"no data available for chosen time interval. {msg}"
+    assert start <= end, f"no data available for chosen time interval. {msg}"
 
-    return [first, last]
+    return [start, end]
 
 
 
@@ -90,19 +74,6 @@ def n_highest_emissions_pc(data, n = 5):
                                                                                   'Total']]
 
 
-# create table containing n countries with highest co2 emission per capita in a given year
-def n_highest_emissions_pc_year(data, start, end, year, n = 5):
-    try:
-        assert (data >= start and year <= end)
-        return data[data['Year'] == year].sort_values(by = 'Per Capita',
-                                                      ascending = False).head(n)[['Year', 
-                                                                                 'Country Name', 
-                                                                                 'Per Capita', 
-                                                                                 'Total']]
-    except AssertionError:
-        print('No data available for this year')
-
-
 # create table containing n countries with highest GDP per capita in each year
 def n_highest_gdps_pc(data, n = 5):
     return data.sort_values(by = ['Year', 'GDP Per Capita'],
@@ -112,21 +83,8 @@ def n_highest_gdps_pc(data, n = 5):
                                                                                         'GDP']]
 
 
-# create table containing n countries with highest GDP per capita in a given year
-def n_highest_gdps_pc_year(data, start, end, year, n = 5):
-    try:
-        assert (year >= start and year <= end)
-        return data[data['Year'] == year].sort_values(by = 'GDP Per Capita',
-                                                      ascending = False).head(n)[['Year', 
-                                                                                 'Country Name', 
-                                                                                 'GDP Per Capita', 
-                                                                                 'GDP']]
-    except AssertionError:
-        print('No data available for this year')
 
-
-
-# calculate reduction of co2 per capita reduction between given years
+# calculate reduction of co2 per capita emission between given years
 def get_reduction(data, country_name, first, last):
     if  (data[(data['Country Name'] == country_name) & (data['Year'] == first)]['Per Capita'].values and
          data[(data['Country Name'] == country_name) & (data['Year'] == last)]['Per Capita'].values): 
@@ -134,24 +92,21 @@ def get_reduction(data, country_name, first, last):
               - data[(data['Country Name'] == country_name) & (data['Year'] == last)]['Per Capita'].values[0])
     else:
         return np.nan
+        
     
 
 # create table containing n countries with higest reduction of co2 per capita emission in the last 10 years
-def n_highest_reductions(data, start, end, n):
-    try:
-        assert (end > start)
-
+def n_highest_reductions_increases(data, start, end, n):
         begin = max(end - 10, start)
 
         country_list =  pd.DataFrame(data["Country Name"].unique())
         country_list.columns = ['Country Name']
         country_list['Reduction'] = country_list[['Country Name']].apply(lambda x: 
                                                                          get_reduction(data, x['Country Name'], begin, end), axis = 1)
+        country_list['Increase'] = country_list[['Reduction']].apply(lambda x: x*(-1), axis = 1)                                                    
 
-        return country_list.sort_values(by = 'Reduction', ascending = False).dropna().head(n)
-        
-    except AssertionError:
-        if (start == end):
-            print("The available data comes from only one year")
-        else:
-            print(f"Required data is not available for this year. Please select a year between {start + 1} and {end}")
+
+        return [country_list[['Country Name', 'Reduction']].sort_values(by = 'Reduction', 
+                                                                        ascending = False).dropna().head(n),
+                country_list[['Country Name', 'Increase']].sort_values(by = 'Increase', 
+                                                                       ascending = False).dropna().head(n)]
