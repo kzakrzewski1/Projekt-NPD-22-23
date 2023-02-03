@@ -35,7 +35,9 @@ def test_get_interval(monkeypatch):
     assert de.get_interval(0, 5000, co2[co2["Year"] <= 2010], gdp, pop) == [1960, 2010],    \
         "get_interval returns incorrect values"
     assert de.get_interval(2000, 5000, co2, gdp, pop) == [2000, 2014],      \
-        "get_interval returns incorrect values"
+        "get_interval returns incorrect values when first year is specified"
+    assert de.get_interval(0, 2005, co2, gdp, pop) == [1960, 2005],      \
+        "get_interval returns incorrect values when last year is specified"
 
     with pytest.raises(AssertionError) as AErr:
         de.get_interval(3000, 2000, co2, gdp, pop)
@@ -83,10 +85,3 @@ def test_get_reduction(monkeypatch):
 
     assert de.get_reduction(co2, "UNITED KINGDOM", 1960, 1970) == 3.02 - 3.19,      \
         "get_reduction incorrectly calculates CO2 per capita emission reduction"
-
-
-
-        
-
-
-    
