@@ -3,7 +3,7 @@ This project aims to analyse data on CO2 emissions, gross domestic product and p
 Data that has been used for this analysis can be downloaded from this repository in the form of csv files. It comes from two different sources,
 which sometimes use different names for the same countries or treat some territories in a different way (for example in the gdp and population 
 data Monaco is treated as a separate entity, whereas in the emission data it is counted together with France). In order to make it possible to
-combine this data, all the countries present in emission data have been manually assigned alpha-3 code (see country_codes.csv). As these codes
+combine this data, all the countries present in emission data have been manually assigned alpha-3 code. As these codes
 are already present in gdp and population data, we can use them to merge all available informations. To assign codes, following rules have been
 used:
 
@@ -21,7 +21,7 @@ used:
 - Historical countries, e.g. USSR, Yugoslavia, Czechoslovakia have been assigned their official alpha-3 codes. Data pertaining those countries is 
   not available in the csv files accessible in this repository, but if it was added, the program should be able to use it without any modifications.
   
-- Few countries, due to their unclear situation, have been deleted from country_codes.csv file, which means that their data will not be used at all.
+- Few countries, due to their unclear situation, have not been assigned any code, which means that their data will not be used at all.
   This list includes:
   - Malaysia and Singapore Federation
   - Ryukyu Islands
