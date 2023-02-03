@@ -85,4 +85,3 @@ def test_get_reduction(monkeypatch):
 
     assert de.get_reduction(co2, "UNITED KINGDOM", 1960, 1970) == 3.02 - 3.19,      \
         "get_reduction incorrectly calculates CO2 per capita emission reduction"
-
