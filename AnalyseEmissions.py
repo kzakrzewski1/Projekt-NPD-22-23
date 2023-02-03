@@ -86,3 +86,4 @@ if (args.save == True):
     highest_gdps.to_csv('highest_gdps.csv')
     if (end != start):
         highest_reductions.to_csv("highest_reductions.csv")
+        highest_increases.to_csv('highest_increases.csv')
