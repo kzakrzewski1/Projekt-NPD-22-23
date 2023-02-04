@@ -1,6 +1,6 @@
 This project aims to analyse data on CO2 emissions, gross domestic product and population.
 
-Main program is located in the file AnalyseEmissions.py. Two additional modules are required to run it - DataOperations.py and Data Extraction.py. 
+Main program is located in the file AnalyseEmissions.py. Two additional modules are required to run it - DataOperations.py and DataExtraction.py. 
 AnalyseEmissions.py uses 'argparse' to configure program parameters. Type -h for specific informations.
 
 Data that has been used for this analysis can be downloaded from this repository in the form of csv files. It comes from two different sources,
