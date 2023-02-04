@@ -48,7 +48,6 @@ co2 = do.crop_data(co2, start, end)
 countries = do.get_countries(co2, gdp)
 data = do.merge_data(co2, gdp, pop, countries)
 
-data.to_csv('data2.csv')
 
 # perform analysis on table 'data'
 highest_emissions = de.n_highest_emissions_pc(data).reset_index(drop = True)
@@ -78,6 +77,7 @@ else:
         print(("\nFollowing tables contain lists of 5 countries with highest reduction/increase of CO2 per capita emission in the last 10 years:\n"))
     print(highest_reductions, end = '\n\n')
     print(highest_increases, end = '\n')
+
 
 
 # save results if requested
