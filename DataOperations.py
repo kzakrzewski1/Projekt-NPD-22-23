@@ -96,7 +96,7 @@ def crop_data(co2, start, end):
     
 
 
-# merge emission, gdp and population data
+# merge emissions, gdp and population data
 def merge_data(co2, gdp, pop, countries):
     co2 = pd.merge(co2, countries, on = 'Country')      # adding alpha-3 codes to emission data
 
@@ -122,5 +122,6 @@ def merge_data(co2, gdp, pop, countries):
     co2['GDP Per Capita'] = co2[['GDP', 'Population']].apply(lambda x:
                                                              de.GDP_per_capita(x['GDP'], x['Population']), axis = 1)
 
-
+    
     return co2[co2['Per Capita'].notna()]
+    
